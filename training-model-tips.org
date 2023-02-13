@@ -32,3 +32,9 @@
     The closer it is to 0, the fewer risks it takes.
     It is best to set temperature as low as possible for well-defined output
 
+*** Fine Tuning
+Involves 3 steps:
+-> Prepare and upload Data (JSONL Document: each line is a prompt-completion pair corresponding to a training example)
+a data preparation tool is available (openai tools fine_tunes.prepare_data -f <LOCAL_FILE>)
+-> Train
+-> Use trained model
