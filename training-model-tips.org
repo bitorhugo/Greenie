@@ -1,0 +1,29 @@
+* Completions EndPoint
+	Core of OpenAI API. Provides a flexible yet powerfull interface.
+	Give prompt as INPUT receive text completion as OUTPUT.
+	e.g
+	    Prompt) Write a name for a horse
+	    OUTPUT) Lighting
+        
+* Adjectives
+	Giving prompt simple adjectives can result in a modified text completion.
+	e.g
+	    Prompt) Write a name for a black horse
+	    OUTPUT) Midnight
+
+* Examples
+	In many cases, it’s helpful to both show and tell the model what you want. Adding examples to your prompt can help communicate patterns.
+	e.g.
+	    Prompt) Suggest three names for an animal that is a superhero.
+                Animal: Cat
+		    	Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
+				Animal: Dog
+				Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
+				Animal: Horse
+				Names:
+
+	    OUTPUT) Super Stallion, Mighty Mare, The Magnificent Equine
+
+* Temperature
+	Setting that provides different outputs for the same input. Gives a broader range of possible text completions.
+
