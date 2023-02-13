@@ -28,4 +28,7 @@
 
 *** Temperature
 	Setting that provides different outputs for the same input. Gives a broader range of possible text completions.
+    Accepts values between 0 and 1.
+    The closer it is to 0, the fewer risks it takes.
+    It is best to set temperature as low as possible for well-defined output
 

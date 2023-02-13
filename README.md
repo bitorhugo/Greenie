@@ -1,2 +1,2 @@
-# Greeny
-OpenAI Fine Tuned Model
+# Greenie
+OpenAI Fine Tuned Model for Sustainable project (Carbon-foote)
