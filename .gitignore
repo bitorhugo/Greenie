@@ -1,1 +1,7 @@
 .env
+venv
+*.json
+*.jsonl
+*.csv
+*.tsv
+*.xlsx        
