@@ -38,3 +38,7 @@ Involves 3 steps:
 a data preparation tool is available (openai tools fine_tunes.prepare_data -f <LOCAL_FILE>)
 -> Train
 -> Use trained model
+
+** Train Data
+    Training is how we teach GPT-3 model what we'd like it to say.
+    
