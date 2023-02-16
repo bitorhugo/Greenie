@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 function check_openai () {
     # check for openai CLI
     openai="${HOME}"/.local/bin/openai
@@ -20,7 +19,6 @@ function exists () {
 
 function check_file () { # args -> input file path
     exists $1     # check for train file extension
-
     FILE_EXT=(csv tsv xlsx json jsonl) # accepted extensions
     EXT="${1#*.}"
     count=${#FILE_EXT[@]}
@@ -49,11 +47,11 @@ function check_base_model() { # args -> input base model
 
 
 function interactive () {
-    read -p 'Enter desired model name:' model_name
-    read -p 'Enter file path of data to be trained:' file_path
+    read -p 'Enter desired model name: ' model_name
+    read -p 'Enter file path of data to be trained: ' file_path
     check_file ${file_path}
-    read -p 'Select GPT-3 Base Model: (ada | babbage | curie | davinci [default])' input_base_model
-    if [[ -z "$1" ]]; then
+    read -p 'Select GPT-3 Base Model: (ada | babbage | curie | [default] davinci) ' base_model
+    if [[ -z "base_model" ]]; then
         base_model=davinci
         return
     fi
@@ -63,19 +61,31 @@ function interactive () {
     train ${model_name} ${file_path} ${base_model}
 }
 
+function handle_args () { 
+    # "usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>"
+    case "${1}" in
+        "-n") echo "-m inserted";;
+        "-m") echo "-m inserted";;
+        "-f") echo "-f inserted";;
+    esac
+}
+
 function non_interactive () {
     if [ $# -lt 2 ]; then
         echo "Error: Invalid number of arguments.."
         echo "usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>"
         exit 1
     fi
+    while [[ $# -gt 0 ]]; do
+        nextarg=$1
+        shift # remove argument from list
+        handle_args ${nextarg}
+     done
 }
 
 # send data for training
 function train () { # args -> model-name file-path base-model
-
     python ${openai} tools fine_tunes.prepare_data -f "$2"
-
     # create fine tuned model
     echo "Creating Model.."
     if [[ ! -z "$3" ]]; then
@@ -87,12 +97,10 @@ function train () { # args -> model-name file-path base-model
 }
 
 ########### START ###########
-
 check_openai
-
 if [ $# -eq 0 ]; then
     interactive
 else
-    non_interactive
+    non_interactive "${@}"
 fi
 
