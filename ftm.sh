@@ -1,5 +1,13 @@
 #!/usr/bin/bash
 
+ENDCOLOR="\e[0m"
+RED="31"
+GREEN="32"
+YELLOW="33"
+BOLDRED="\e[1;${RED}m"
+BOLDGREEN="\e[1;${GREEN}m"
+BOLDYELLOW="\e[1;${YELLOW}m"
+
 function check_openai () {
     # check for openai CLI
     openai="${HOME}"/.local/bin/openai
@@ -12,7 +20,7 @@ function check_openai () {
 function exists () {
     # check if file exists
     if [[ ! -f "$1" ]]; then
-        echo "Error: File ${1} does not exist.."
+        echo -e "${BOLDRED}Error: File ${1} does not exist..${ENDCOLOR}"
         exit 1
     fi
 }
@@ -28,7 +36,7 @@ function check_file () { # args -> input file path
             return
         fi
     done
-    echo "Error: '${EXT}' not a valid file type.."
+    echo -e "${BOLDRED}Error: '${EXT}' not a valid file type..${ENDCOLOR}"
     exit 1
 }
 
@@ -41,45 +49,46 @@ function check_base_model() { # args -> input base model
             return
         fi
     done
-    echo "Error: ${1} model not valid.."
+    echo -e "${BOLDRED}Error: ${1} model not valid..${ENDCOLOR}"
     exit 1
 }
 
 
 function interactive () {
-    read -p 'Enter desired model name: ' model_name
-    read -p 'Enter file path of data to be trained: ' file_path
+    read -p "$(echo -e ${BOLDYELLOW}"Enter model name: "${ENDCOLOR})" model_name
+    read -p "$(echo -e ${BOLDYELLOW}"Enter file path of data to be trained: "${ENDCOLOR})" file_path
     check_file ${file_path}
-    read -p 'Select GPT-3 Base Model: (ada | babbage | curie | [default] davinci) ' base_model
+    read -p "$(echo -e ${BOLDYELLOW}"Select GPT-3 Base Model: (ada | babbage | curie | [default] davinci) "${ENDCOLOR})" base_model
     if [[ -z "base_model" ]]; then
         base_model=davinci
         return
     fi
     check_base_model ${base_model}
-    echo "${base_model}"
     exit 1
+    
     train ${model_name} ${file_path} ${base_model}
 }
 
 function handle_args () { 
-    # "usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>"
+    # args -> [COMMAND] [INPUT]
     case "${1}" in
-        "-n") echo "-m inserted";;
-        "-m") echo "-m inserted";;
-        "-f") echo "-f inserted";;
+        "-n") echo "-m ${2}inserted";;
+        "-m") echo "-m ${2}inserted";;
+        "-f") echo "-f ${2}inserted";;
     esac
 }
 
 function non_interactive () {
     if [ $# -lt 2 ]; then
-        echo "Error: Invalid number of arguments.."
-        echo "usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>"
+        echo -e "${BOLDRED}Error: Invalid number of arguments..${ENDCOLOR}"
+        echo -e "${BOLDYELLOW}usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>${ENDCOLOR}"
         exit 1
     fi
     while [[ $# -gt 0 ]]; do
-        nextarg=$1
+        command=$1
+        input=$2
         shift # remove argument from list
-        handle_args ${nextarg}
+        handle_args ${command} ${input}
      done
 }
 
