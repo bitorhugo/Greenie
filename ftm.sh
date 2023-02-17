@@ -98,7 +98,7 @@ function handle_args () {
 }
 
 function non_interactive () {
-    if [ $# -lt 2 ]; then
+    if [ $# -lt 4 ]; then
         echo -e "${BOLDRED}Error: Invalid number of arguments..${ENDCOLOR}"
         echo -e "${BOLDYELLOW}usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>${ENDCOLOR}"
         exit 1
@@ -106,9 +106,11 @@ function non_interactive () {
     while [[ $# -gt 0 ]]; do
         command=$1
         input=$2
-        shift # remove argument from list
+        shift
+        shift 
         handle_args ${command} ${input}
-     done
+    done
+    train ${model_name} ${file_path} ${base_model}
 }
 
 # send data for training
