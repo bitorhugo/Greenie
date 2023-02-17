@@ -1,5 +1,20 @@
 #!/usr/bin/bash
+#
+# Script Name: fmt.sh
+#
+# Author: Bitor Hugo
+# Date : 13.02.2023
+#
+# Description: The following script facilitates the preparation and training of data for openai fine tuned models
+#
+# Run Information: This script is run manually.
+#
+# Standard Output: Any output is sent to a file called output.log
+#
+# Error Log: Any errors associated with this script are sent to a file called errors.log
+#
 
+ERRORFILE=errors.log
 ENDCOLOR="\e[0m"
 RED="31"
 GREEN="32"
@@ -72,9 +87,13 @@ function interactive () {
 function handle_args () { 
     # args -> [COMMAND] [INPUT]
     case "${1}" in
-        "-n") echo "-m ${2}inserted";;
-        "-m") echo "-m ${2}inserted";;
-        "-f") echo "-f ${2}inserted";;
+        -n) model_name=${2};;
+        -m) base_model=${2}
+            check_base_model ${base_model};;
+        -f) file_path=${2}
+            check_file ${file_path};;
+        *)  echo -e "${BOLDRED}Error: Invalid argument.. ${BOLDYELLOW}usage: -m <model-name> -f <train-file-id-or-path> -m [OPTIONAL] <base-model>${ENDCOLOR}"
+            exit 1;;
     esac
 }
 
@@ -96,12 +115,12 @@ function non_interactive () {
 function train () { # args -> model-name file-path base-model
     python ${openai} tools fine_tunes.prepare_data -f "$2"
     # create fine tuned model
-    echo "Creating Model.."
+    echo "${BOLDGREEN}Creating Model..${ENDCOLOR}"
     if [[ ! -z "$3" ]]; then
-        echo "Name: $1"
-        echo "File: $2"
-        echo "Base-Model: $3"   
-        python ${openai} api fine_tunes.create -t data_prepared.jsonl -m "$3" --suffix "$1"
+        echo -e "${BOLDGREEN}Name: $1${ENDCOLOR}"
+        echo -e "${BOLDGREEN}File: $2${ENDCOLOR}"
+        echo -e "${BOLDGREEN}Base-Model: ${BOLDYELLOW}$3${ENDCOLOR}"   
+        Python ${openai} api fine_tunes.create -t data_prepared.jsonl -m "$3" --suffix "$1"
     fi
 }
 
