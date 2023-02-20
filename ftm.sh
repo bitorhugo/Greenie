@@ -56,7 +56,7 @@ function check_file () { # args -> input file path
 }
 
 function check_base_model() { # args -> input base model
-    local BASE_MODELS=(ada babbage currie davinci)
+    local BASE_MODELS=(ada babbage curie davinci)
     local count=${#BASE_MODELS[@]}
     for ((i=0; $i < $count; i++)); do
         local it=${BASE_MODELS=[$i]}
