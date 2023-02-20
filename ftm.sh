@@ -70,18 +70,28 @@ function check_base_model() { # args -> input base model
 
 
 function interactive () {
-    read -p "$(echo -e ${BOLDYELLOW}"Enter model name: "${ENDCOLOR})" model_name
-    read -p "$(echo -e ${BOLDYELLOW}"Enter file path of data to be trained: "${ENDCOLOR})" file_path
-    check_file ${file_path}
-    read -p "$(echo -e ${BOLDYELLOW}"Select GPT-3 Base Model: (ada | babbage | curie | [default] davinci) "${ENDCOLOR})" base_model
-    if [[ -z "base_model" ]]; then
-        base_model=davinci
-        return
-    fi
-    check_base_model ${base_model}
-    exit 1
-    
-    train ${model_name} ${file_path} ${base_model}
+    while [[ 1 ]]; do 
+        read -p "$(echo -e ${BOLDYELLOW}"Enter model name: "${ENDCOLOR})" model_name
+        read -p "$(echo -e ${BOLDYELLOW}"Enter file path of data to be trained: "${ENDCOLOR})" file_path
+        check_file ${file_path}
+        read -p "$(echo -e ${BOLDYELLOW}"Select GPT-3 Base Model: (ada | babbage | curie | [default] davinci) "${ENDCOLOR})" base_model
+        if [[ -z "${base_model}" ]]; then
+            base_model=davinci
+        else
+            check_base_model ${base_model}
+        fi
+        echo -e "${BOLDGREEN}Proceed with current selection?${ENDCOLOR}"
+        echo -e "${BOLDYELLOW}Model Name: ${BOLDGREEN}${model_name}"
+        echo -e "${BOLDYELLOW}File Path: ${BOLDGREEN}${file_path}"
+        echo -e "${BOLDYELLOW}Base Model: ${BOLDGREEN}${base_model}${ENDCOLOR}"
+        read -p "[y/N]" input
+        case "${input}" in
+            [yY]) echo "train";;
+            *) echo -e "${BOLDRED}Reverting..${ENDCOLOR}";;
+            quit) break;;
+        esac
+    # train ${model_name} ${file_path} ${base_model};;
+    done
 }
 
 function handle_args () { 
