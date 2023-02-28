@@ -5,6 +5,8 @@
 #     2) Tokenization:
 #     3) Encoding:
 #     4) Classification
+
+
 import re
     
 def parseToList(path: str) -> list[str]:
@@ -40,7 +42,7 @@ def cleanse (input: str) -> list[str]:
         raise Exception("String 'raw' is empty.")
 
     words = parseWordToDic('data/stopwords')
-    #symbols = parseToList('data/symbols')
+    symbols = parseToList('data/symbols')
     numbers = parseToList('data/numbers')
     contractions = parseContractionsToDic('data/contractions')
 
@@ -52,9 +54,8 @@ def cleanse (input: str) -> list[str]:
         input = re.sub(n, ' ', input)
 
     # remove symbols
-    # for s in symbols:
-    #     input = re.sub(s, '', input)
-
+    input = re.sub(r'[\+\-\*\%\/\?\!\.\,\;\\]', '', input)
+    
     # remove contractions
     tmp = input.split(' ')
     for w in tmp:
@@ -72,7 +73,7 @@ def cleanse (input: str) -> list[str]:
 raw = "Luciano Pavarotti. (born October 12, 1935, Modena, Italy—died September 6, 2007, Modena), Italian operatic lyric tenor who was considered one of the finest bel canto opera singers of the 20th century. Even in the highest register, his voice was noted for its purity of tone, and his concerts, recordings, and television appearances—which provided him ample opportunity to display his ebullient personality—gained him a wide popular following."
 
 # 2 -> get human input and cleanse it
-human_input = "Who's Luciano Pavarotti ?"
+human_input = "Who's Luciano, Pavarotti ?"
 print(f'Before: {human_input}')
 cleansed = cleanse(human_input)
 print(f'After: {cleansed}')
