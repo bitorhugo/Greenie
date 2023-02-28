@@ -15,16 +15,23 @@ def parseToList(path: str) -> list[str]:
         return input.split(' ')
     return input.split(',')
 
-def parseToDict (path: str) -> dict[str, str]:
+def parseContractionsToDic (path: str) -> dict[str, str]:
     file = open(path, "r")
-    input = file.read()
-    input = input.split(',')
+    input = file.read().split(',')
     file.close()
     c = {}
     for w in range(0, len(input), 2):
         c.update({input[w]: input[w+1]})
     return c
 
+def parseWordToDic (path: str) -> dict[str, str]:
+    file = open(path, 'r')
+    input = file.read().split(',')
+    file.close()
+    words = {}
+    for w in input:
+        words[w] = ''
+    return words
 
 # expects a raw input of type string.
 # e.g -> Dataset contained in a super long string
@@ -32,11 +39,12 @@ def cleanse (input: str) -> list[str]:
     if not input:
         raise Exception("String 'raw' is empty.")
 
-    words = parseToList('data/stopwords')
+    words = parseWordToDic('data/stopwords')
     #symbols = parseToList('data/symbols')
     numbers = parseToList('data/numbers')
-    contractions = parseToDict('data/contractions')
+    contractions = parseContractionsToDic('data/contractions')
 
+    # normalize input
     input = input.lower()
     
     # remove numbers
@@ -52,13 +60,35 @@ def cleanse (input: str) -> list[str]:
     for w in tmp:
         if contractions.get(w):
             input = re.sub(str(w), str(contractions.get(w)), input)
-    
-    return input.split(' ')
 
-# 1 -> Gather context for GPT-3
-context = "What's the weather like in four days ain't ?"
+    # remove words
+    for w in input.split(' '):
+        if words.get(w) != None:
+            input = re.sub(str(w), "", input)
+
+    return input.strip().split(' ')
+
+# 1 -> gather raw paragraph
+raw = "Luciano Pavarotti. (born October 12, 1935, Modena, Italy—died September 6, 2007, Modena), Italian operatic lyric tenor who was considered one of the finest bel canto opera singers of the 20th century. Even in the highest register, his voice was noted for its purity of tone, and his concerts, recordings, and television appearances—which provided him ample opportunity to display his ebullient personality—gained him a wide popular following."
 
 # 2 -> get human input and cleanse it
-cleansed = cleanse (context)
+human_input = "Who's Luciano Pavarotti ?"
+print(f'Before: {human_input}')
+cleansed = cleanse(human_input)
+print(f'After: {cleansed}')
 
-# 3 -> for each word of cleansed, search for it in context and extract the paragraph
+# 3 -> for each word of cleansed, search for it in raw and extract the sentence
+#   1) split raw by sentence
+#   2) search for cleansed word in each phrase
+#   3) build context for gpt-3
+sentences = dict()
+s_raw = raw.lower().split('.')
+for phrase in s_raw:
+    for word in cleansed:
+        if word in phrase.split(): # split so searches for whole word
+            sentences[phrase] = word
+
+context = str()
+for s in sentences.keys():
+    context = context + s
+
