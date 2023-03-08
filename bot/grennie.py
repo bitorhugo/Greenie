@@ -1,10 +1,13 @@
+from decimal import Decimal
 import openai, tiktoken
 from os import getenv
-
+from bot.models import Model
 
 class Greenie:
 
     _TEMP = 0
+
+    _ENCODING_MODEL_NAME = "gpt-3.5-turbo"
     
     def __init__(self, model: Model = Model.TURBO) -> None:
         openai.api_key = getenv("OPENAI_API_KEY")
@@ -28,6 +31,7 @@ class Greenie:
         )
         return str(response['choices'][0]['message']['content'])
 
+
     def count_tokens(self, ctx) -> int:
         '''
         The number of tokens used affects:
@@ -39,16 +43,22 @@ class Greenie:
             encoding = tiktoken.encoding_for_model(self.model.value)
         except KeyError:
             encoding = tiktoken.get_encoding("cl100k_base")
-        if self.model.value == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
-            num_tokens = 0
-            for message in ctx:
-                num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
-                for key, value in message.items():
-                    num_tokens += len(encoding.encode(value))
-                    if key == "name":  # if there's a name, the role is omitted
-                        num_tokens += -1  # role is always required and always 1 token
-            num_tokens += 2  # every reply is primed with <im_start>assistant
-            return num_tokens
-        else:
-            raise Exception("failed")
+            
+        num_tokens = 0
+        for message in ctx:
+            num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+            for key, value in message.items():
+                num_tokens += len(encoding.encode(value))
+                if key == "name":  # if there's a name, the role is omitted
+                    num_tokens += -1  # role is always required and always 1 token
+                    num_tokens += 2  # every reply is primed with <im_start>assistant
+        return num_tokens
+
+    @staticmethod
+    def req_price(tokens: int) -> int:
+        '''
+        Returns apprx of price to pay for tokens
+        '''
+        # price of 1K tokens = 0.002
+        return int(Decimal(0.002/1000) * tokens)
 
