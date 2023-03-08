@@ -58,3 +58,14 @@ def tokenize (input: str) -> list[str]:
 
     return input.strip().split(' ')
 
+def build_context (raw: str,tokens: list[str]) -> str:
+    sentences = dict()
+    s_raw = raw.lower().split('.')
+    for phrase in s_raw:
+        for word in tokens:
+            if word in phrase.split(): # split so searches for whole word
+                sentences[phrase] = word
+    context = str()
+    for s in sentences.keys():
+        context = context + s
+    return context;
