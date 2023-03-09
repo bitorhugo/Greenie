@@ -1,3 +1,4 @@
+import pprint
 from bot.role import Role
 
 class Context:
@@ -13,5 +14,5 @@ class Context:
         self.ctx.append({"role" : role.value, "content" : msg})
 
     def __str__(self) -> str:
-        return self.ctx.__str__()
+        return pprint.pformat(self.ctx, sort_dicts=False, indent=2)
 

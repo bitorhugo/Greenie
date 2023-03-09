@@ -31,12 +31,14 @@ translation = translator.translate(raw)
 if __name__ == '__main__':
 
     context = Context(initial_msg = True)
-
     q = "whats the first step in the pcb charger assembly?"
+
     print(f'Before: {q}')
     tok = snlp.tokenize(q)
     print(f'After: {tok}')
-    context = snlp.filter_raw(raw, tok)
+
+    context.add_msg_to_ctx(Role.SYSTEM, snlp.filter_raw(raw, tok))
+    context.add_msg_to_ctx(Role.USER, q)
     print(f'Context: {context}')
 
     # bot = Greenie()
