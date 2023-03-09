@@ -3,20 +3,29 @@
 import openai
 from snlp import tokenize, build_context
 from bot.grennie import Greenie
+from googletrans import Translator, constants
 
-raw = "Luciano Pavarotti (born October 12, 1935, Modena, Italy—died September 6, 2007, Modena), Italian operatic lyric tenor who was considered one of the finest bel canto opera singers of the 20th century. Even in the highest register, his voice was noted for its purity of tone, and his concerts, recordings, and television appearances—which provided him ample opportunity to display his ebullient personality—gained him a wide popular following."
+f = open ("data/example.txt")
+raw = f.read()
+raw = raw.replace('\n', '')
+raw = raw.replace(';', '.')
+
+
+# init the Google API translator
+translator = Translator()
+
+# translate a spanish text to english text (by default)
+translation = translator.translate(raw)
 
 messages = [
-    {"role": "system", "content": "You are a helpful, pattern-following assistant that translates corporate jargon into plain English."},
-    {"role": "system", "name":"example_user", "content": "New synergies will help drive top-line growth."},
-    {"role": "system", "name": "example_assistant", "content": "Things working well together will increase revenue."},
-    {"role": "system", "name":"example_user", "content": "Let's circle back when we have more bandwidth to touch base on opportunities for increased leverage."},
-    {"role": "system", "name": "example_assistant", "content": "Let's talk later when we're less busy about how to do better."},
-    {"role": "user", "content": "This late pivot means we don't have time to boil the ocean for the client deliverable."},
+    {"role": "system", "content": "You are a helpful, pattern-following assistant that helps field operators and citizens on a smart city."},
+    {"role": "system", "content": "If you don't know the answer to a question say, I don't know."},
+    {"role": "system", "content": f'{raw}'},
+    {"role": "user", "content": "Tell me the first item needed"},
 ]
 
 if __name__ == '__main__':
-    q = "Who's Luciano ?"
+    q = "whats the first step in the pcb charger assembly?"
     print(f'Before: {q}')
     tok = tokenize(q)
     print(f'After: {tok}')
