@@ -50,10 +50,11 @@ class Greenie:
                     num_tokens += 2  # every reply is primed with <im_start>assistant
         return num_tokens
 
-    @staticmethod
-    def req_price(tokens: int) -> int:
+    
+    def req_price(self, tokens: int) -> int:
         '''
         Returns apprx of price to pay for tokens
+        param: ctx -> context to send to chatbot
         '''
         # price of 1K tokens = 0.002
         return int(Decimal(0.002/1000) * tokens)

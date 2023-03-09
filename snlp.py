@@ -1,5 +1,7 @@
 import re
 
+from bot.role import Role
+
 def parse_to_list(path: str) -> list[str]:
     file = open(path, 'r')
     input = file.read()
@@ -69,3 +71,6 @@ def build_context (raw: str,tokens: list[str]) -> str:
     for s in sentences.keys():
         context = context + s
     return context;
+
+def create_ctx_message(role: Role, message: str) -> dict [str, str]:
+    return {role.value : message}
