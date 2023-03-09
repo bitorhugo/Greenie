@@ -28,24 +28,22 @@ translation = translator.translate(raw)
 # ]
 # context will be composed of a list of dictionaries
 
-context = Context()
-context.add_msg_to_ctx(Role.SYSTEM, "You are a helpful, pattern-following assistant that helps field operators and citizens on a smart city.")
-context.add_msg_to_ctx(Role.USER, "What is dog coin?")
-print (context.ctx)
-
 if __name__ == '__main__':
-    # q = "whats the first step in the pcb charger assembly?"
-    # print(f'Before: {q}')
-    # tok = snlp.tokenize(q)
-    # print(f'After: {tok}')
-    # context = snlp.build_context(raw, tok)
-    # print(f'Context: {context}')
 
-    bot = Greenie()
-    tokens = bot.count_tokens(context)
-    total = bot.req_price(tokens)
-    print (f'Tokens: {tokens}')
-    print (f'Total Price est ~ {total}$')
+    context = Context(initial_msg = True)
+
+    q = "whats the first step in the pcb charger assembly?"
+    print(f'Before: {q}')
+    tok = snlp.tokenize(q)
+    print(f'After: {tok}')
+    context = snlp.filter_raw(raw, tok)
+    print(f'Context: {context}')
+
+    # bot = Greenie()
+    # tokens = bot.count_tokens(context)
+    # total = bot.req_price(tokens)
+    # print (f'Tokens: {tokens}')
+    # print (f'Total Price est ~ {total}$')
 
     # print (bot.response(messages))
 

@@ -32,7 +32,7 @@ def words_to_dict (path: str) -> dict[str, str]:
 # e.g -> Dataset contained in a super long string
 def tokenize (input: str) -> list[str]:
     if not input:
-        raise Exception("String 'raw' is empty.")
+        raise Exception("Input must not be empty.")
 
     words = words_to_dict('data/stopwords')
     numbers = parse_to_list('data/numbers')
@@ -60,7 +60,7 @@ def tokenize (input: str) -> list[str]:
 
     return input.strip().split(' ')
 
-def build_context (raw: str,tokens: list[str]) -> str:
+def filter_raw (raw: str,tokens: list[str]) -> str:
     sentences = dict()
     s_raw = raw.lower().split('.')
     for phrase in s_raw:
@@ -71,6 +71,3 @@ def build_context (raw: str,tokens: list[str]) -> str:
     for s in sentences.keys():
         context = context + s
     return context;
-
-def create_ctx_message(role: Role, message: str) -> dict [str, str]:
-    return {role.value : message}
