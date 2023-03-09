@@ -13,20 +13,16 @@ class Greenie:
         openai.api_key = getenv("OPENAI_API_KEY")
         self.model = model
         
-    def asnwer(self, q: str) -> str:
+    def response(self, q: list[dict[str, str]]) -> str:
         '''
-        answer a question from user using ChatCompletion
+        answer question from user using ChatCompletion
+        param: q -> context contained in JSON format
         '''
         if (not q):
             raise Exception('Empty Question')
         response = openai.ChatCompletion.create(
             model=self.model.value,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Knock knock."},
-                {"role": "assistant", "content": "Who's there?"},
-                {"role": "user", "content": "Orange."},
-            ],
+            messages=q,
             temperature=self._TEMP
         )
         return str(response['choices'][0]['message']['content'])
