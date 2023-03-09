@@ -11,8 +11,13 @@ class Context:
             self.add_msg_to_ctx(Role.SYSTEM, self.__initial_msg)
         
     def add_msg_to_ctx(self, role: Role, msg: str) -> None:
+        '''
+        Appends a message to the context with given role
+        param: role -> role of the messenger (e.g. user or system)
+        param: msg -> message to append
+        '''
         self.ctx.append({"role" : role.value, "content" : msg})
 
     def __str__(self) -> str:
-        return pprint.pformat(self.ctx, sort_dicts=False, indent=2)
+        return pprint.pformat(self.ctx, sort_dicts=False, indent=1)
 
