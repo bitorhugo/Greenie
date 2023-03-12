@@ -6,3 +6,4 @@ venv
 *.tsv
 *.xlsx        
 __pycache__
+logs/
