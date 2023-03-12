@@ -4,13 +4,12 @@ import openai, snlp
 from bot.context import Context
 from bot.role import Role
 from bot.grennie import Greenie
-from googletrans import Translator, constants
+from googletrans import Translator
 
 f = open ("data/example.txt")
 raw = f.read()
 raw = raw.replace('\n', '')
 raw = raw.replace(';', '.')
-
 
 # init the Google API translator
 translator = Translator()
@@ -30,24 +29,20 @@ translation = translator.translate(raw)
 
 if __name__ == '__main__':
 
-    context = Context(initial_msg = True)
     q = "whats the first step in the pcb charger assembly?"
-
-    print(f'Before: {q}')
-    tok = snlp.tokenize(q)
-    print(f'After: {tok}')
-
-    context.add_msg_to_ctx(Role.SYSTEM, snlp.filter_raw(raw, tok))
-    context.add_msg_to_ctx(Role.USER, q)
+    context = Context(initial_msg = True)
+    
+    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(translation.text))
+    context.add_question(q)
     print(f'Context: {context}')
+    print(f'Question: {context.get_question()}')
 
-    # bot = Greenie()
-    # tokens = bot.count_tokens(context)
-    # total = bot.req_price(tokens)
-    # print (f'Tokens: {tokens}')
-    # print (f'Total Price est ~ {total}$')
-
-    # print (bot.response(messages))
+    bot = Greenie()
+    tokens = bot.count_tokens(context)
+    total = bot.req_price(tokens)
+    print (f'Tokens: {tokens}')
+    print (f'Total Price est ~ {total}$')
+    print (bot.response(context))
 
 # Openai.api_key = getenv("OPENAI_API_KEY")
 # turbo = "gpt-3.5-turbo"
