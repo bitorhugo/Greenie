@@ -1,20 +1,10 @@
 #!/usr/bin/python3
 
-import openai, snlp
+import openai, snlp, asyncio
 from bot.context import Context
 from bot.role import Role
 from bot.grennie import Greenie
 from googletrans import Translator
-
-f = open ("data/example.txt")
-raw = f.read()
-raw = raw.replace('\n', '')
-raw = raw.replace(';', '.')
-
-# init the Google API translator
-translator = Translator()
-# translate a spanish text to english text (by default)
-translation = translator.translate(raw)
 
 # messages will be a json array
 # json object -> dict[str, str]
@@ -27,7 +17,13 @@ translation = translator.translate(raw)
 # ]
 # context will be composed of a list of dictionaries
 
-if __name__ == '__main__':
+async def main():
+    f = open ("data/example.txt")
+    raw = f.read()
+    raw = raw.replace('\n', '')
+    raw = raw.replace(';', '.')
+    translator = Translator()
+    translation = translator.translate(raw)
 
     q = "whats the first step in the pcb charger assembly?"
     context = Context(initial_msg = True)
@@ -42,7 +38,11 @@ if __name__ == '__main__':
     total = bot.req_price(tokens)
     print (f'Tokens: {tokens}')
     print (f'Total Price est ~ {total}$')
-    print (bot.response(context))
+    await bot.response(context)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
 
 # Openai.api_key = getenv("OPENAI_API_KEY")
 # turbo = "gpt-3.5-turbo"

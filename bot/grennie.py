@@ -1,10 +1,10 @@
 from decimal import Decimal
-import re
 import openai, tiktoken
+import csv, re, asyncio
 from os import getenv
 from bot.context import Context
 from bot.models import Model
-import csv
+
 
 class Greenie:
 
@@ -17,21 +17,27 @@ class Greenie:
         openai.api_key = getenv("OPENAI_API_KEY")
         self.__model = model
         
-    def response(self, ctx: Context) -> str:
+    async def response(self, ctx: Context, debug=False) -> str:
         '''
         answer question from user using ChatCompletion
         param: q -> context contained in JSON format
         '''
         if (not ctx):
             raise Exception('Empty')
+        
         response = openai.ChatCompletion.create(
             model=self.__model.value,
             messages=ctx.get_ctx(),
             temperature=self._TEMP
         )
         res = str(response['choices'][0]['message']['content'])
-        self.log(ctx.get_question(), res) # TODO: make this async
+
+        asyncio.create_task(self.log(ctx.get_question(), res))
+
+        if debug:
+            print (res)
         return res
+    
 
     # The number of tokens used affects:
     # 1) the cost of the request
@@ -65,9 +71,10 @@ class Greenie:
         # price of 1K tokens = 0.002
         return int(Decimal(0.002/1000) * tokens)
 
-    def log(self, q: str, res: str):
+    async def log(self, q: str, res: str):
+        print("Logging..")
         res = re.sub(',', '', res)
         with open(self.__log_path, 'w', newline='') as f:
             writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             writer.writerow([q, res])
-            
+        print ("Logging Successful")
