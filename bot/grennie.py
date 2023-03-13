@@ -1,7 +1,8 @@
+from ctypes import sizeof
 from decimal import Decimal
 import openai, tiktoken
 import csv, re, asyncio
-from os import getenv
+import os
 from bot.context import Context
 from bot.models import Model
 
@@ -14,7 +15,7 @@ class Greenie:
     _ENCODING_MODEL_NAME = "gpt-3.5-turbo"
     
     def __init__(self, model: Model = Model.TURBO) -> None:
-        openai.api_key = getenv("OPENAI_API_KEY")
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         self.__model = model
         
     async def response(self, ctx: Context, debug=False) -> str:
@@ -73,8 +74,10 @@ class Greenie:
 
     async def log(self, q: str, res: str):
         print("Logging..")
-        res = re.sub(',', '', res)
-        with open(self.__log_path, 'w', newline='') as f:
+        res = re.sub(',', '', res) # normalize data for logging
+        with open(self.__log_path, 'a+t', newline='') as f:
             writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            if os.stat(self.__log_path).st_size == 0: # file is empty, write headers
+                writer.writerow(['question', 'answer'])
             writer.writerow([q, res])
         print ("Logging Successful")
