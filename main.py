@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import openai, snlp, asyncio
+import snlp, asyncio
 from bot.context import Context
 from bot.role import Role
 from bot.grennie import Greenie
@@ -17,18 +17,21 @@ from googletrans import Translator
 # ]
 # context will be composed of a list of dictionaries
 
+def to_en(input: str) -> str:
+    translator = Translator()
+    input = input.replace('\n', '')
+    input = input.replace(';', '.')
+    return translator.translate(input).text
+
+
 async def main():
     f = open ("data/example.txt")
-    raw = f.read()
-    raw = raw.replace('\n', '')
-    raw = raw.replace(';', '.')
-    translator = Translator()
-    translation = translator.translate(raw)
-
-    q = "whats the first step in the pcb charger assembly?"
-    context = Context(initial_msg = True)
+    data = to_en(f.read())
     
-    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(translation.text))
+    q = "whats the last step in the pcb charger assembly?"
+    context = Context(initial_msg=True)
+    
+    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(data, debug=True))
     context.add_question(q)
     print(f'Context: {context}')
     print(f'Question: {context.get_question()}')
@@ -38,23 +41,7 @@ async def main():
     total = bot.req_price(tokens)
     print (f'Tokens: {tokens}')
     print (f'Total Price est ~ {total}$')
-    await bot.response(context)
+    await bot.response(context, debug=True)
 
 if __name__ == '__main__':
     asyncio.run(main())
-
-
-# Openai.api_key = getenv("OPENAI_API_KEY")
-# turbo = "gpt-3.5-turbo"
-# custom_prompt = context # here you'll add the context plus conversation carried so far and question from user
-
-# openai.Completion.create(
-#     model = Model.TURBO,
-#     prompt = context,
-#     temperature = 0,
-#     max_tokens = 10
-# )
-
-
-
-
