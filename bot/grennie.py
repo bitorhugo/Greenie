@@ -10,14 +10,14 @@ from bot.models import Model
 class Greenie:
 
     _TEMP = 0
-    __log_path = 'logs/qa.csv'
-
-    _ENCODING_MODEL_NAME = "gpt-3.5-turbo"
+    __log_qa_path = 'logs/qa.csv'
+    __log_prpx_path = 'logs/prpx.csv'
     
     def __init__(self, model: Model = Model.TURBO) -> None:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         self.__model = model
         
+
     async def response(self, ctx: Context, debug=False) -> str:
         '''
         answer question from user using ChatCompletion
@@ -34,11 +34,10 @@ class Greenie:
 
         res = str(response.choices[0]['message']['content'])
 
-        # calculate perplexity
-        self.calculate_perplexity(ctx, res, debug)
+        prpx = self.calculate_perplexity(ctx, res, debug)
         
         # log QnA
-        asyncio.create_task(self.log(ctx.get_question(), res))
+        asyncio.create_task(self.__log(q=ctx.get_question(), r=res, p=prpx))
 
         if debug:
             print (f'Response: {res}')
@@ -69,6 +68,7 @@ class Greenie:
                     num_tokens += 2  # every reply is primed with <im_start>assistant
         return num_tokens
     
+
     def req_price(self, tokens: int) -> int:
         '''
         Returns apprx of price to pay for tokens
@@ -77,15 +77,23 @@ class Greenie:
         # price of 1K tokens = 0.002
         return int(Decimal(0.002/1000) * tokens)
 
-    async def log(self, q: str, res: str):
-        print("Logging..")
-        res = re.sub(',', '', res) # normalize data for logging
-        with open(self.__log_path, 'a+t', newline='') as f:
+
+    async def __log(self, **args):
+        res = re.sub(',', '', args['r']) # normalize data for logging
+        if len(args) == 3:
+            with open(self.__log_prpx_path, 'a+t', newline='') as f:
+                writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+                if os.stat(self.__log_prpx_path).st_size == 0: # file is empty, write headers
+                    writer.writerow(['question', 'answer', 'perplexity'])
+                writer.writerow([args['q'], res, args['p']])
+
+        with open(self.__log_qa_path, 'a+t', newline='') as f:
             writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            if os.stat(self.__log_path).st_size == 0: # file is empty, write headers
+            if os.stat(self.__log_qa_path).st_size == 0: # file is empty, write headers
                 writer.writerow(['question', 'answer'])
-            writer.writerow([q, res])
+            writer.writerow([args['q'], res])
         print ("Logging Successful")
+
 
     def calculate_perplexity(self, ctx: Context, res: str, debug: bool=False) -> float:
         tokens = ctx.tokens()
