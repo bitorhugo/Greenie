@@ -31,8 +31,9 @@ async def main():
     q = "whats the last step in the pcb charger assembly?"
     context = Context(initial_msg=True)
     
-    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(data, debug=True))
+    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(data, debug=False))
     context.add_question(q)
+    context.tokens(debug=True)
     print(f'Context: {context}')
     print(f'Question: {context.get_question()}')
 
