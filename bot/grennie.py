@@ -2,7 +2,7 @@ from ctypes import sizeof
 from decimal import Decimal
 import openai, tiktoken
 import csv, re, asyncio
-import os
+import os, math
 from bot.context import Context
 from bot.models import Model
 
@@ -31,12 +31,17 @@ class Greenie:
             messages=ctx.get_ctx(),
             temperature=self._TEMP
         )
-        res = str(response['choices'][0]['message']['content'])
 
+        res = str(response.choices[0]['message']['content'])
+
+        # calculate perplexity
+        self.calculate_perplexity(ctx, res, debug)
+        
+        # log QnA
         asyncio.create_task(self.log(ctx.get_question(), res))
 
         if debug:
-            print (res)
+            print (f'Response: {res}')
         return res
     
 
@@ -81,3 +86,16 @@ class Greenie:
                 writer.writerow(['question', 'answer'])
             writer.writerow([q, res])
         print ("Logging Successful")
+
+    def calculate_perplexity(self, ctx: Context, res: str, debug: bool=False) -> float:
+        tokens = ctx.tokens()
+        # Extract the probabilities for the tokens
+        token_probs = [res.split().count(token) / len(res.split()) for token in tokens]
+        print (token_probs)
+        # Calculate the log-probabilities
+        log_probs = [-math.log2(prob) for prob in token_probs if prob != 0]
+        # Calculate the perplexity
+        perplexity = 2 ** (sum(log_probs) / len(tokens))
+        if debug:
+            print(perplexity)
+        return perplexity
