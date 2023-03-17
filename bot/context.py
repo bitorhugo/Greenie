@@ -1,4 +1,6 @@
+import tiktoken
 import pprint
+from bot.models import Model
 from bot.role import Role
 
 class Context:
@@ -21,6 +23,9 @@ class Context:
         '''
         self.__ctx.append({"role" : role.value, "content" : msg})
 
+    def add_question(self, q: str) -> None:
+        self.__ctx.append({"role" : Role.USER._value_, "content" : q})
+
     def get_question(self) -> str:
         '''
         Returns question if present
@@ -29,10 +34,21 @@ class Context:
         if self.__ctx[len(self.__ctx) - 1]['role'] == "user":
             return self.__ctx[len(self.__ctx) - 1]['content']
         else:
-            return ""
+            return ''
     
-    def add_question(self, q: str) -> None:
-        self.__ctx.append({"role" : Role.USER._value_, "content" : q})
+    def tokens(self, debug: bool=False) -> list[str]:
+        '''
+        Returns context tokens
+        '''
+        tokens = ''
+        for d in self.__ctx:
+            for k, v in d.items():
+                if k == 'content':
+                    tokens += v + ' '
+        tokens = tokens.split()
+        if debug:
+            print(tokens)
+        return tokens
         
     def __str__(self) -> str:
         return pprint.pformat(self.__ctx, sort_dicts=False, indent=1)
