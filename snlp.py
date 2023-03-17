@@ -59,7 +59,7 @@ def __tokenize (input: str) -> list[str]:
     # remove extra whitespaces and duplicates
     return list (dict().fromkeys(list(filter(lambda x: x, input.split()))))
 
-def filter_raw (raw: str, debug: bool = False) -> str:
+def filter_raw (raw: str, debug: bool=False) -> str:
     tokens = __tokenize(raw)
     sentences = dict()
     s_raw = raw.lower().split('.')
