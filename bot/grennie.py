@@ -1,4 +1,3 @@
-from ctypes import sizeof
 from decimal import Decimal
 import openai, tiktoken
 import csv, re, asyncio
@@ -20,8 +19,8 @@ class Greenie:
 
     async def response(self, ctx: Context, debug=False) -> str:
         '''
-        answer question from user using ChatCompletion
-        param: q -> context contained in JSON format
+        Request for Chat Completion API
+        param: ctx -> context for request
         '''
         if (not ctx):
             raise Exception('Empty')
@@ -50,8 +49,9 @@ class Greenie:
     # 3) when the reply gets cut off from hitting the maximum token limit (4096 for gpt-3.5-turbo)
     def count_tokens(self, ctx: Context) -> int:
         '''
-        counts tokens in the given context
-        params: ctx -> chatbot context
+        Counts tokens in given context
+        param: ctx -> chatbot context
+        returns: token amount
         '''
         try:
             encoding = tiktoken.encoding_for_model(self.__model.value)
@@ -71,14 +71,18 @@ class Greenie:
 
     def req_price(self, tokens: int) -> int:
         '''
-        Returns apprx of price to pay for tokens
+        Calculates approximate of price to pay for request
         param: ctx -> context to send to chatbot
+        returns: price of request
         '''
-        # price of 1K tokens = 0.002
-        return int(Decimal(0.002/1000) * tokens)
+        return int(Decimal(0.002/1000) * tokens) # price of 1K tokens = 0.002
 
 
-    async def __log(self, **args):
+    async def __log(self, **args) -> None:
+        '''
+        Logs request question, answer and/or perplexity
+        param: *args -> named arguments for question (q), answer(r), perplexity(p)
+        '''
         res = re.sub(',', '', args['r']) # normalize data for logging
         if len(args) == 3:
             with open(self.__log_prpx_path, 'a+t', newline='') as f:
@@ -96,6 +100,11 @@ class Greenie:
 
 
     def calculate_perplexity(self, ctx: Context, res: str, debug: bool=False) -> float:
+        '''
+        Calculates perplexity metric of model tokens
+        param: ctx -> context of request
+        param: res -> response of request
+        '''
         tokens = ctx.tokens()
         # Extract the probabilities for the tokens
         token_probs = [res.split().count(token) / len(res.split()) for token in tokens]
