@@ -4,6 +4,7 @@ import csv, re, asyncio
 import os, math
 from bot.context import Context
 from bot.models import Model
+from sklearn.metrics import f1_score
 
 
 class Greenie:
@@ -33,10 +34,8 @@ class Greenie:
 
         res = str(response.choices[0]['message']['content'])
 
-        prpx = self.calculate_perplexity(ctx, res, debug)
-        
         # log QnA
-        asyncio.create_task(self.__log(q=ctx.get_question(), r=res, p=prpx))
+        asyncio.create_task(self.__log(c=ctx, r=res, prpx=True))
 
         if debug:
             print (f'Response: {res}')
@@ -81,21 +80,22 @@ class Greenie:
     async def __log(self, **args) -> None:
         '''
         Logs request question, answer and/or perplexity
-        param: *args -> named arguments for question (q), answer(r), perplexity(p)
+        param: *args -> named arguments for context (c), answer(r), perplexity(p: boolean)
         '''
         res = re.sub(',', '', args['r']) # normalize data for logging
         if len(args) == 3:
+            perplexity = self.calculate_perplexity(args['c'], args['r'])
             with open(self.__log_prpx_path, 'a+t', newline='') as f:
                 writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
                 if os.stat(self.__log_prpx_path).st_size == 0: # file is empty, write headers
                     writer.writerow(['question', 'answer', 'perplexity'])
-                writer.writerow([args['q'], res, args['p']])
+                writer.writerow([args['c'].get_question(), res, perplexity])
 
         with open(self.__log_qa_path, 'a+t', newline='') as f:
             writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             if os.stat(self.__log_qa_path).st_size == 0: # file is empty, write headers
                 writer.writerow(['question', 'answer'])
-            writer.writerow([args['q'], res])
+            writer.writerow([args['c'].get_question(), res])
         print ("Logging Successful")
 
 
@@ -108,7 +108,7 @@ class Greenie:
         tokens = ctx.tokens()
         # Extract the probabilities for the tokens
         token_probs = [res.split().count(token) / len(res.split()) for token in tokens]
-        print (token_probs)
+        print (f'perp:{token_probs}')
         # Calculate the log-probabilities
         log_probs = [-math.log2(prob) for prob in token_probs if prob != 0]
         # Calculate the perplexity
@@ -116,3 +116,17 @@ class Greenie:
         if debug:
             print(perplexity)
         return perplexity
+
+
+    def f1_score(self, actual: list[str], expected: list[str]) -> float:
+        '''
+        Calculates f1 score given a list of actual and expected answers
+        ''' 
+        f1_scores = []
+        for i in range(len(actual)):
+            answer = actual[i]
+            predicted_answer = expected[i]
+            f1 = f1_score([answer], [predicted_answer], average='weighted')
+            f1_scores.append(f1)
+        # Calculate the average F1 score across all question and answer pairs
+        return sum(f1_scores) / len(f1_scores)

@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 
-import snlp, asyncio
+import snlp, asyncio, csv
 from bot.context import Context
 from bot.role import Role
 from bot.grennie import Greenie
-from googletrans import Translator
 
 # messages will be a json array
 # json object -> dict[str, str]
@@ -18,22 +17,21 @@ from googletrans import Translator
 # context will be composed of a list of dictionaries
 
 def to_en(input: str) -> str:
-    translator = Translator()
     input = input.replace('\n', '')
     input = input.replace(';', '.')
-    return translator.translate(input).text
+    return ""
 
 
 async def main():
-    f = open ("data/example.txt")
-    data = to_en(f.read())
-    
+    f = open ("data/en/pcb.txt")
+    data = f.read()
+
     q = "whats the last step in the pcb charger assembly?"
     context = Context(initial_msg=True)
     
-    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(data, debug=False))
+    context.add_knowledge(Role.SYSTEM, snlp.filter_raw(data, debug=True))
     context.add_question(q)
-    context.tokens(debug=True)
+    context.tokens(debug=False)
     print(f'Context: {context}')
     print(f'Question: {context.get_question()}')
 
@@ -44,5 +42,6 @@ async def main():
     print (f'Total Price est ~ {total}$')
     await bot.response(context, debug=True)
 
+    
 if __name__ == '__main__':
     asyncio.run(main())

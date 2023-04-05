@@ -32,9 +32,9 @@ def __tokenize (input: str) -> list[str]:
     if not input:
         raise Exception("Input must not be empty.")
 
-    words = __words_to_dict('data/stopwords')
-    numbers = __parse_to_list('data/numbers')
-    contractions = __contractions_to_dict('data/contractions')
+    words = __words_to_dict('data/snlp/stopwords')
+    numbers = __parse_to_list('data/snlp/numbers')
+    contractions = __contractions_to_dict('data/snlp/contractions')
 
     # normalize input
     input = input.lower()
