@@ -8,6 +8,8 @@ from bot.grennie import Greenie
 from sklearn.metrics import f1_score
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+import nltk
+
 # messages will be a json array
 # json object -> dict[str, str]
 # e.g.
@@ -39,6 +41,21 @@ def test_cossine_similarity():
 
     # print the cosine similarity
     print("Cosine similarity:", cosine_sim[0][0])
+
+def test_BLEU_score():
+    # define the generated response and the expected response
+    generated_response = "The quick brown fox jumps over the lazy dog"
+    expected_response = "The quick brown fox jumps over the lazy dog"
+
+    # tokenize the generated response and the expected response
+    generated_tokens = nltk.word_tokenize(generated_response)
+    expected_tokens = nltk.word_tokenize(expected_response)
+
+    # calculate the BLEU score
+    bleu_score = nltk.translate.bleu_score.sentence_bleu([expected_tokens], generated_tokens)
+
+    # print the BLEU score
+    print("BLEU score:", bleu_score)
 
 async def f1(debug: bool=False):
     f1_path = 'logs/f1.csv'
@@ -130,4 +147,4 @@ async def main():
 if __name__ == '__main__':
     # asyncio.run(main())
     # asyncio.run(f1())
-    test_cossine_similarity()
+    test_BLEU_score()
