@@ -108,13 +108,13 @@ class Greenie:
         tokens = ctx.tokens()
         # Extract the probabilities for the tokens
         token_probs = [res.split().count(token) / len(res.split()) for token in tokens]
-        print (f'perp:{token_probs}')
         # Calculate the log-probabilities
         log_probs = [-math.log2(prob) for prob in token_probs if prob != 0]
         # Calculate the perplexity
         perplexity = 2 ** (sum(log_probs) / len(tokens))
         if debug:
-            print(perplexity)
+            print (f'prpx-per-tokens:{token_probs}')
+            print(f'prpx:{perplexity}')
         return perplexity
 
 
