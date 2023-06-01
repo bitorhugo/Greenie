@@ -8,7 +8,6 @@ from bot.models import Model
 from bot.role import Role
 
 
-
 class Greenie:
 
     _TEMP = 0
